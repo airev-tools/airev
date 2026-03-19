@@ -1,0 +1,31 @@
+# serializer version: 1
+# name: TestUastArena.test_snapshot_small_tree
+  dict({
+    'children': dict({
+      0: list([
+        1,
+        2,
+      ]),
+      1: list([
+      ]),
+      2: list([
+        3,
+      ]),
+      3: list([
+      ]),
+    }),
+    'count': 4,
+    'names': list([
+      'module',
+      'os',
+      'hello',
+      'print',
+    ]),
+    'node_types': list([
+      0,
+      1,
+      3,
+      5,
+    ]),
+  })
+# ---
