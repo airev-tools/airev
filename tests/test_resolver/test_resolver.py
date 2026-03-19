@@ -58,7 +58,7 @@ class TestPythonResolver:
         r = ImportResolver(str(tmp_path), "python")
         r.module_exists("os")
         r.module_exists("os")
-        assert r._cache["os"] is True
+        assert r._cache["os"].exists is True
 
 
 class TestJavaScriptResolver:
