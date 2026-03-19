@@ -30,3 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `phantom-import` rule — detects imports of non-existent packages/modules
 - `hallucinated-api` rule — detects calls to non-existent methods on real modules
 - `FindingCollector` — deduplication and severity-ordered sorting of findings
+- `hardcoded-secrets` rule — regex patterns, Shannon entropy, and false-positive suppression for API keys, tokens, passwords, and database URLs
+- `deprecated-api` rule — curated deprecation database for Python stdlib, NumPy, and Node.js APIs with replacement suggestions
+- `reinvented-internal` rule — detects AI-duplicated utility functions that already exist in the project
+- `shannon_entropy()` pure function in `airev_core/heuristics/patterns.py`
+- `DeprecatedAPI` dataclass and `DEPRECATED_APIS` curated database in deprecation_db.py
+- `project_symbols` optional field on `LintContext` for cross-file analysis
+- Project-wide symbol index built during scan pipeline (parse → index → evaluate)
+- Comprehensive edge case tests for all rules in both Python and JS/TS
+- CI coverage enforcement (70% minimum), snapshot integrity check, and pickle safety job
+- `pytest-cov` added to dev dependencies
