@@ -1,0 +1,17 @@
+# serializer version: 1
+# name: TestPhantomImportPython.test_snapshot
+  list([
+    dict({
+      'line': 1,
+      'message': "Import 'crypto_secure_hash' could not be resolved. This package may not exist or may be a hallucinated dependency.",
+      'rule_id': 'phantom-import',
+      'severity': <Severity.ERROR: 'error'>,
+    }),
+    dict({
+      'line': 2,
+      'message': "Import 'data_sanitizer_pro' could not be resolved. This package may not exist or may be a hallucinated dependency.",
+      'rule_id': 'phantom-import',
+      'severity': <Severity.ERROR: 'error'>,
+    }),
+  ])
+# ---

@@ -1,0 +1,150 @@
+# serializer version: 1
+# name: TestSemanticBuilderJavaScript.test_snapshot_js
+  dict({
+    'calls': list([
+      dict({
+        'full_name': 'console.log',
+        'name': 'log',
+        'receiver': 'console',
+      }),
+      dict({
+        'full_name': 'express',
+        'name': 'express',
+        'receiver': None,
+      }),
+      dict({
+        'full_name': 'path.join',
+        'name': 'join',
+        'receiver': 'path',
+      }),
+    ]),
+    'definitions': list([
+      dict({
+        'kind': 'function',
+        'name': 'greet',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'result',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'fullPath',
+      }),
+    ]),
+    'imports': list([
+      dict({
+        'local_name': 'express',
+        'module': 'express',
+        'name': 'default',
+      }),
+      dict({
+        'local_name': 'readFile',
+        'module': 'fs',
+        'name': 'readFile',
+      }),
+      dict({
+        'local_name': 'writeFile',
+        'module': 'fs',
+        'name': 'writeFile',
+      }),
+      dict({
+        'local_name': 'path',
+        'module': 'path',
+        'name': '*',
+      }),
+    ]),
+  })
+# ---
+# name: TestSemanticBuilderPython.test_snapshot_python
+  dict({
+    'calls': list([
+      dict({
+        'full_name': 'print',
+        'name': 'print',
+        'receiver': None,
+      }),
+      dict({
+        'full_name': 'np.array',
+        'name': 'array',
+        'receiver': 'np',
+      }),
+      dict({
+        'full_name': 'np.mean',
+        'name': 'mean',
+        'receiver': 'np',
+      }),
+      dict({
+        'full_name': 'os.listdir',
+        'name': 'listdir',
+        'receiver': 'os',
+      }),
+      dict({
+        'full_name': 'Path',
+        'name': 'Path',
+        'receiver': None,
+      }),
+    ]),
+    'definitions': list([
+      dict({
+        'kind': 'function',
+        'name': 'greet',
+      }),
+      dict({
+        'kind': 'function',
+        'name': 'add',
+      }),
+      dict({
+        'kind': 'class',
+        'name': 'Calculator',
+      }),
+      dict({
+        'kind': 'function',
+        'name': 'multiply',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'result',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'mean',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'files',
+      }),
+      dict({
+        'kind': 'variable',
+        'name': 'p',
+      }),
+    ]),
+    'imports': list([
+      dict({
+        'local_name': 'os',
+        'module': 'os',
+        'name': None,
+      }),
+      dict({
+        'local_name': 'np',
+        'module': 'numpy',
+        'name': None,
+      }),
+      dict({
+        'local_name': 'Path',
+        'module': 'pathlib',
+        'name': 'Path',
+      }),
+      dict({
+        'local_name': 'defaultdict',
+        'module': 'collections',
+        'name': 'defaultdict',
+      }),
+      dict({
+        'local_name': 'OrderedDict',
+        'module': 'collections',
+        'name': 'OrderedDict',
+      }),
+    ]),
+  })
+# ---

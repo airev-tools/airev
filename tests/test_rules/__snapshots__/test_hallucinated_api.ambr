@@ -1,0 +1,12 @@
+# serializer version: 1
+# name: TestHallucinatedApi.test_snapshot
+  list([
+    dict({
+      'confidence': <Confidence.MEDIUM: 'medium'>,
+      'line': 2,
+      'message': "Method 'list_directory' does not exist on module 'os'. This may be an AI-hallucinated API.",
+      'rule_id': 'hallucinated-api',
+      'severity': <Severity.ERROR: 'error'>,
+    }),
+  ])
+# ---
