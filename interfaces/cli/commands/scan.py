@@ -12,6 +12,7 @@ import click
 from rich.console import Console
 from rich.table import Table
 
+from airev_core.discovery.ignore import IgnorePattern, is_ignored, load_ignorefile
 from airev_core.findings.collector import collect
 from airev_core.parsers import ParserRegistry
 from airev_core.rules.common.deprecated_api import DeprecatedApiRule
@@ -59,18 +60,32 @@ def _discover_files(
     root: Path,
     registry: ParserRegistry,
     lang_filter: str | None,
+    ignore_patterns: tuple[IgnorePattern, ...] = (),
 ) -> list[tuple[Path, str]]:
     """Walk directory tree and return (path, language) pairs for supported files."""
     results: list[tuple[Path, str]] = []
     for dirpath, dirnames, filenames in os.walk(root):
         # Prune skip dirs in-place
-        dirnames[:] = [d for d in dirnames if d not in _SKIP_DIRS]
+        dirnames[:] = [
+            d
+            for d in dirnames
+            if d not in _SKIP_DIRS
+            and not is_ignored(
+                str(Path(dirpath, d).relative_to(root)).replace("\\", "/"),
+                ignore_patterns,
+                is_dir=True,
+            )
+        ]
         for filename in filenames:
             filepath = Path(dirpath) / filename
             language = registry.get_language(str(filepath))
             if language is None:
                 continue
             if lang_filter is not None and language != lang_filter:
+                continue
+            # Check .airevignore
+            rel_path = str(filepath.relative_to(root)).replace("\\", "/")
+            if is_ignored(rel_path, ignore_patterns):
                 continue
             results.append((filepath, language))
     return results
@@ -185,7 +200,8 @@ def scan(
         console.print("\n[bold]airev[/bold] v0.1.0\n")
         console.print(f"Scanning {root}...\n")
 
-    files = _discover_files(root, parser_registry, lang)
+    ignore_patterns = load_ignorefile(str(root))
+    files = _discover_files(root, parser_registry, lang, ignore_patterns)
 
     if not files:
         if output_format == "terminal":
