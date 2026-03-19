@@ -23,6 +23,7 @@ from airev_core.rules.registry import RuleRegistry, evaluate_file
 from airev_core.semantics.builder import SemanticBuilder
 from airev_core.semantics.context import LintContext, ProjectSymbols
 from airev_core.semantics.resolver import ImportResolver
+from airev_core.suppression import build_suppression_map, is_finding_suppressed
 
 if TYPE_CHECKING:
     from airev_core.arena.uast_arena import UastArena
@@ -235,6 +236,16 @@ def scan(
         dispatch_table = rule_registry.build_dispatch_table(language)
         file_rules = rule_registry.get_file_rules(language)
         findings = evaluate_file(arena, dispatch_table, file_rules, ctx)
+
+        # Apply inline suppression (outside rule bodies — rules stay pure)
+        sup_map = build_suppression_map(source, language)
+        if sup_map:
+            findings = [
+                f
+                for f in findings
+                if not is_finding_suppressed(sup_map, f.rule_id, f.span.start_line)
+            ]
+
         all_findings.extend(findings)
 
     # Sort findings
