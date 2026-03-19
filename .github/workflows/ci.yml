@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install mypy numpy
+      - run: pip install mypy numpy click rich tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript
       - run: mypy airev_core/ interfaces/ --strict
 
   test:
@@ -44,5 +44,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install pytest syrupy
-      - run: pytest tests/ -v --override-ini="addopts=" || test $? -eq 5
+      - run: pip install pytest syrupy numpy click rich tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript
+      - run: pytest tests/ -v
