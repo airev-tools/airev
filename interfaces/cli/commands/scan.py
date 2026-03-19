@@ -12,7 +12,7 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from airev_core.findings.models import Finding, Severity
+from airev_core.findings.collector import collect
 from airev_core.parsers import ParserRegistry
 from airev_core.rules.common.hallucinated_api import HallucinatedApiRule
 from airev_core.rules.common.phantom_import import PhantomImportRule
@@ -22,6 +22,7 @@ from airev_core.semantics.context import LintContext
 from airev_core.semantics.resolver import ImportResolver
 
 if TYPE_CHECKING:
+    from airev_core.findings.models import Finding
     from airev_core.rules.base import NodeRule
 
 _SKIP_DIRS: frozenset[str] = frozenset(
@@ -130,15 +131,6 @@ def _format_json(findings: list[Finding]) -> None:
     sys.stdout.write(json.dumps(output, indent=2) + "\n")
 
 
-def _sort_findings(findings: list[Finding]) -> list[Finding]:
-    """Sort findings by severity (error first), then file, then line."""
-    severity_order = {Severity.ERROR: 0, Severity.WARNING: 1, Severity.INFO: 2}
-    return sorted(
-        findings,
-        key=lambda f: (severity_order.get(f.severity, 9), f.file_path, f.span.start_line),
-    )
-
-
 @click.command()
 @click.argument("path", default=".", type=click.Path(exists=True))
 @click.option(
@@ -220,7 +212,7 @@ def scan(
         all_findings.extend(findings)
 
     # Sort findings
-    all_findings = _sort_findings(all_findings)
+    all_findings = collect(all_findings)
 
     # Output results
     total_files = len(files)
