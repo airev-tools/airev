@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 from pathlib import Path
@@ -153,22 +152,16 @@ def _format_terminal(findings: list[Finding], root: Path, console: Console) -> N
 
 def _format_json(findings: list[Finding]) -> None:
     """Print findings as JSON to stdout."""
-    output = [
-        {
-            "rule_id": f.rule_id,
-            "message": f.message,
-            "severity": f.severity.value,
-            "confidence": f.confidence.value,
-            "file_path": f.file_path,
-            "start_line": f.span.start_line,
-            "start_col": f.span.start_col,
-            "end_line": f.span.end_line,
-            "end_col": f.span.end_col,
-            "suggestion": f.suggestion,
-        }
-        for f in findings
-    ]
-    sys.stdout.write(json.dumps(output, indent=2) + "\n")
+    from interfaces.cli.formatters.json_fmt import format_json
+
+    sys.stdout.write(format_json(findings) + "\n")
+
+
+def _format_sarif(findings: list[Finding]) -> None:
+    """Print findings as SARIF 2.1.0 to stdout."""
+    from interfaces.cli.formatters.sarif import format_sarif
+
+    sys.stdout.write(format_sarif(findings) + "\n")
 
 
 @click.command()
@@ -182,7 +175,7 @@ def _format_json(findings: list[Finding]) -> None:
     "--format",
     "output_format",
     default="terminal",
-    type=click.Choice(["terminal", "json"]),
+    type=click.Choice(["terminal", "json", "sarif"]),
     help="Output format (default: terminal)",
 )
 @click.option(
@@ -228,6 +221,8 @@ def scan(
             console.print("0 files scanned.\n")
         elif output_format == "json":
             sys.stdout.write("[]\n")
+        elif output_format == "sarif":
+            _format_sarif([])
         return
 
     # Phase 1: Parse all files and build semantic models
@@ -292,6 +287,8 @@ def scan(
 
     if output_format == "json":
         _format_json(all_findings)
+    elif output_format == "sarif":
+        _format_sarif(all_findings)
     else:
         # Terminal format
         lang_parts = []
