@@ -46,6 +46,3 @@ credentials.json
 # Node (for tree-sitter grammars)
 node_modules/
 
-# Claude (temporary)
-.claude/
-CLAUDE.md
