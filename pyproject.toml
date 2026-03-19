@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "airev"
+version = "0.1.0"
+description = "AI Code Quality Scanner — catches what copilots miss."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "airev-tools" }]
+keywords = ["static-analysis", "ai", "code-quality", "linter"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+dependencies = [
+    "click>=8.1",
+    "datasketch>=1.6",
+    "loky>=3.4",
+    "numpy>=1.26",
+    "rich>=13.0",
+    "tree-sitter>=0.21",
+    "tree-sitter-python>=0.21",
+    "tree-sitter-javascript>=0.21",
+    "tree-sitter-typescript>=0.21",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.8",
+    "pytest>=8.0",
+    "ruff>=0.3",
+    "syrupy>=4.6",
+]
+
+[project.scripts]
+airev = "interfaces.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/airev-tools/airev"
+Repository = "https://github.com/airev-tools/airev"
+Issues = "https://github.com/airev-tools/airev/issues"
+Changelog = "https://github.com/airev-tools/airev/blob/main/CHANGELOG.md"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "TCH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["airev_core", "interfaces"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
