@@ -31,6 +31,7 @@ from airev_core.semantics.builder import SemanticBuilder
 from airev_core.semantics.context import LintContext, ProjectSymbols
 from airev_core.semantics.resolver import ImportResolver
 from airev_core.suppression import build_suppression_map, is_finding_suppressed
+from airev_core.workspace.build_facts import build_workspace_facts
 
 if TYPE_CHECKING:
     from airev_core.arena.uast_arena import UastArena
@@ -269,11 +270,13 @@ def scan(
         semantic = builder.build(arena, language)
         parsed_files.append((filepath, language, arena, semantic, source))
 
-    # Phase 2: Build project-wide symbol index
+    # Phase 2: Build project-wide symbol index and workspace facts
     project_symbols: ProjectSymbols = {}
     for filepath, _lang, _arena, semantic, _source in parsed_files:
         for defn in semantic.definitions:
             project_symbols.setdefault(defn.name, []).append((str(filepath), defn))
+
+    facts = build_workspace_facts(str(root))
 
     # Phase 3: Evaluate rules with full context
     all_findings: list[Finding] = []
@@ -288,6 +291,7 @@ def scan(
             source=source,
             resolver=resolver,
             project_symbols=project_symbols,
+            workspace_facts=facts,
         )
 
         dispatch_table = rule_registry.build_dispatch_table(language)
