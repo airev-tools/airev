@@ -12,6 +12,7 @@ import click
 from rich.console import Console
 from rich.table import Table
 
+from airev_core.config.loader import load_config
 from airev_core.discovery.ignore import IgnorePattern, is_ignored, load_ignorefile
 from airev_core.findings.collector import collect
 from airev_core.parsers import ParserRegistry
@@ -28,6 +29,7 @@ from airev_core.suppression import build_suppression_map, is_finding_suppressed
 
 if TYPE_CHECKING:
     from airev_core.arena.uast_arena import UastArena
+    from airev_core.config.models import AirevConfig
     from airev_core.findings.models import Finding
     from airev_core.rules.base import FileRule, NodeRule
     from airev_core.semantics.symbols import SemanticModel
@@ -91,8 +93,8 @@ def _discover_files(
     return results
 
 
-def _build_registry(rule_filter: str | None) -> RuleRegistry:
-    """Create and populate the rule registry."""
+def _build_registry(rule_filter: str | None, config: AirevConfig) -> RuleRegistry:
+    """Create and populate the rule registry, respecting config."""
     registry = RuleRegistry()
     all_node_rules: list[NodeRule] = [
         PhantomImportRule(),
@@ -102,11 +104,17 @@ def _build_registry(rule_filter: str | None) -> RuleRegistry:
     for rule in all_node_rules:
         if rule_filter is not None and rule.id != rule_filter:
             continue
+        rule_cfg = config.rules.get(rule.id)
+        if rule_cfg is not None and not rule_cfg.enabled:
+            continue
         registry.register_node_rule(rule)
 
     all_file_rules: list[FileRule] = [HardcodedSecretsRule(), ReinventedInternalRule()]
     for frule in all_file_rules:
         if rule_filter is not None and frule.id != rule_filter:
+            continue
+        rule_cfg = config.rules.get(frule.id)
+        if rule_cfg is not None and not rule_cfg.enabled:
             continue
         registry.register_file_rule(frule)
 
@@ -192,8 +200,9 @@ def scan(
     """Scan a directory for AI-generated code quality issues."""
     console = Console()
     root = Path(path).resolve()
+    config = load_config(str(root))
     parser_registry = ParserRegistry()
-    rule_registry = _build_registry(rule_filter)
+    rule_registry = _build_registry(rule_filter, config)
     builder = SemanticBuilder()
 
     if output_format == "terminal":
@@ -201,7 +210,17 @@ def scan(
         console.print(f"Scanning {root}...\n")
 
     ignore_patterns = load_ignorefile(str(root))
-    files = _discover_files(root, parser_registry, lang, ignore_patterns)
+    # Merge config exclude patterns with .airevignore
+    if config.exclude:
+        from airev_core.discovery.ignore import parse_ignorefile
+
+        config_patterns = parse_ignorefile("\n".join(config.exclude))
+        ignore_patterns = ignore_patterns + config_patterns
+    # Apply config language filter
+    effective_lang = lang or (
+        next(iter(config.languages)) if config.languages and len(config.languages) == 1 else lang
+    )
+    files = _discover_files(root, parser_registry, effective_lang, ignore_patterns)
 
     if not files:
         if output_format == "terminal":
