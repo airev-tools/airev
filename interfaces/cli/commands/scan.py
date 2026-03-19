@@ -21,6 +21,12 @@ from airev_core.rules.common.hardcoded_secrets import HardcodedSecretsRule
 from airev_core.rules.common.phantom_import import PhantomImportRule
 from airev_core.rules.common.reinvented_internal import ReinventedInternalRule
 from airev_core.rules.registry import RuleRegistry, evaluate_file
+from airev_core.security.scan_policy import (
+    ScanSafetyConfig,
+    check_long_lines,
+    evaluate_file_policy,
+    safe_read_source,
+)
 from airev_core.semantics.builder import SemanticBuilder
 from airev_core.semantics.context import LintContext, ProjectSymbols
 from airev_core.semantics.resolver import ImportResolver
@@ -226,16 +232,37 @@ def scan(
         return
 
     # Phase 1: Parse all files and build semantic models
+    safety_config = ScanSafetyConfig()
     parsed_files: list[tuple[Path, str, UastArena, SemanticModel, bytes]] = []
     total_nodes = 0
+    total_bytes_scanned = 0
     lang_counts: dict[str, int] = {}
 
     for filepath, language in files:
+        # Safety policy check (before parsing)
+        policy = evaluate_file_policy(filepath, root, safety_config)
+        if not policy.should_scan:
+            continue
+
+        # Budget check
+        if len(parsed_files) >= safety_config.max_files:
+            break
+        if total_bytes_scanned >= safety_config.max_total_bytes:
+            break
+
         parser = parser_registry.get_parser(str(filepath))
         if parser is None:
             continue
 
-        source = filepath.read_bytes()
+        source, _warning = safe_read_source(filepath)
+        if not source:
+            continue
+
+        # Skip files with extremely long lines
+        if check_long_lines(source, safety_config):
+            continue
+
+        total_bytes_scanned += len(source)
         arena = parser.parse(source)
         total_nodes += arena.count
         lang_counts[language] = lang_counts.get(language, 0) + 1
