@@ -48,7 +48,6 @@ def _build_nuitka() -> bool:
         print("Nuitka not found. Install with: pip install nuitka")
         return False
 
-    nuitka_cmd = "nuitka3" if shutil.which("nuitka3") else "nuitka"
     ts_args = _find_tree_sitter_libs()
 
     cmd = [
