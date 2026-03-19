@@ -5,7 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] — 2026-03-20
+
+### Added
+- Inline suppression via `# airev: ignore[rule-id]` and `// airev: ignore[rule-id]` comments
+- `.airevignore` file for gitignore-style path exclusion (glob, negation, directory-only patterns)
+- Rule configuration via `.airev.toml` and `[tool.airev]` in `pyproject.toml`
+- Graceful degradation — degraded confidence when `venv/` or `node_modules/` is missing
+- SARIF 2.1.0 output format (`--format sarif`) for GitHub Code Scanning integration
+- JSON output format (`--format json`)
+- Scanner safety boundary — binary detection, file size limits, symlink safety, path traversal prevention
+- `ScanSafetyConfig` for configurable safety limits
+- `WorkspaceFacts` — lightweight, pickle-safe project context built from manifests (no code execution)
+- Evidence-based confidence calibration from workspace facts (first-party, declared deps, lockfile)
+- `LanguageCapabilities` registry for extensible per-language metadata
+- Nuitka build script with PyInstaller fallback (`build/nuitka_build.py`)
+- Performance benchmark suite (`benchmarks/benchmark_scan.py`)
+- 36+ edge case tests covering config, safety, workspace, ignore, and output serialization
+
+### Changed
+- `ImportResolver.resolve_with_metadata()` now returns `ResolutionResult` with degraded state info
+- Scan pipeline now applies safety policy before parsing and suppression after rule evaluation
+- `LintContext` now carries optional `workspace_facts` for context-aware rule evaluation
+
+## [0.1.0] — 2026-03-18
 
 ### Added
 - `UastArena` — numpy Structure of Arrays storage for UAST nodes with bump allocation
