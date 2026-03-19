@@ -1,0 +1,23 @@
+# serializer version: 1
+# name: TestDeprecatedApiSnapshot.test_snapshot
+  list([
+    dict({
+      'line': 2,
+      'message': "'typing.Optional' is deprecated (Deprecated since 3.9). Use X | None instead.",
+      'rule_id': 'deprecated-api',
+      'severity': 'warning',
+    }),
+    dict({
+      'line': 2,
+      'message': "'typing.List' is deprecated (Deprecated since 3.9). Use list[X] instead.",
+      'rule_id': 'deprecated-api',
+      'severity': 'warning',
+    }),
+    dict({
+      'line': 3,
+      'message': "'os.popen()' is deprecated (Removed in 3.11). Use subprocess.run() instead.",
+      'rule_id': 'deprecated-api',
+      'severity': 'error',
+    }),
+  ])
+# ---
