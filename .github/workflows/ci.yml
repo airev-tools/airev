@@ -44,5 +44,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install pytest syrupy numpy click rich tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript
-      - run: pytest tests/ -v
+      - run: pip install pytest pytest-cov syrupy numpy click rich tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript datasketch loky
+      - name: Run tests with coverage
+        run: pytest tests/ -v --cov=airev_core --cov-report=term-missing --cov-fail-under=70
+      - name: Snapshot integrity
+        run: pytest tests/ --snapshot-warn-unused
+
+  pickle-safety:
+    name: Pickle Safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest syrupy numpy click rich tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript datasketch loky
+      - run: pytest tests/ -k "pickle" -v
