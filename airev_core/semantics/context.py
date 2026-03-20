@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from airev_core.arena.uast_arena import UastArena
     from airev_core.semantics.resolver import ImportResolver
     from airev_core.semantics.symbols import DefinedSymbol, SemanticModel
+    from airev_core.workspace.models import WorkspaceFacts
 
 # Type alias for the project-wide symbol index
 ProjectSymbols = dict[str, list[tuple[str, "DefinedSymbol"]]]
@@ -25,3 +26,4 @@ class LintContext:
     source: bytes
     resolver: ImportResolver
     project_symbols: ProjectSymbols | None = None
+    workspace_facts: WorkspaceFacts | None = None
