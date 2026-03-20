@@ -6,7 +6,7 @@ from interfaces.cli.commands.scan import scan
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="airev")
+@click.version_option(version="0.2.0", prog_name="airev")
 def cli() -> None:
     """airev — AI code quality scanner."""
 

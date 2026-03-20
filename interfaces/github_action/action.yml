@@ -1,0 +1,55 @@
+name: "airev — Code Quality Scanner"
+description: >-
+  Detect semantic defects, phantom imports, hardcoded secrets,
+  deprecated patterns, and other high-signal issues in AI-written
+  and human-written code.
+author: "airev-tools"
+
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Path to scan (default: repository root)"
+    required: false
+    default: "."
+  format:
+    description: "Output format: terminal, json, or sarif"
+    required: false
+    default: "sarif"
+  config:
+    description: "Path to .airev.toml config file"
+    required: false
+    default: ""
+  rules:
+    description: "Run only this rule (e.g. phantom-import)"
+    required: false
+    default: ""
+  lang:
+    description: "Scan only this language (python, javascript, typescript)"
+    required: false
+    default: ""
+  fail-on-findings:
+    description: "Fail the step when findings are present (default: true)"
+    required: false
+    default: "true"
+
+outputs:
+  findings-count:
+    description: "Number of findings detected"
+  sarif-file:
+    description: "Path to SARIF output file (when format is sarif)"
+  scan-status:
+    description: "Scan outcome: clean, findings, or error"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.path }}
+    - ${{ inputs.format }}
+    - ${{ inputs.config }}
+    - ${{ inputs.rules }}
+    - ${{ inputs.lang }}
+    - ${{ inputs.fail-on-findings }}
