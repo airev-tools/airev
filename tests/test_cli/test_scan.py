@@ -56,7 +56,7 @@ class TestScanCommand:
     def test_version_flag(self) -> None:
         result = self.runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "0.1.0" in result.output
+        assert "0.2.0" in result.output
 
     def test_exit_code_1_on_findings(self, tmp_path: Path) -> None:
         (tmp_path / "bad.py").write_text("import fake_nonexistent_pkg_xyz\n")

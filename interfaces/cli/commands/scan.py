@@ -206,7 +206,7 @@ def scan(
     builder = SemanticBuilder()
 
     if output_format == "terminal":
-        console.print("\n[bold]airev[/bold] v0.1.0\n")
+        console.print("\n[bold]airev[/bold] v0.2.0\n")
         console.print(f"Scanning {root}...\n")
 
     ignore_patterns = load_ignorefile(str(root))

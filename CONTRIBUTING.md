@@ -15,6 +15,9 @@ source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
 # Install in editable mode with dev dependencies
 pip install -e ".[dev]"
+
+# Verify everything works
+ruff check . && mypy airev_core/ interfaces/ --strict && pytest tests/ -v
 ```
 
 ## Quality Gate
@@ -30,16 +33,23 @@ pytest tests/ -v                           # Tests — must exit 0
 
 ## Adding a New Rule
 
-1. Create the rule function in `airev_core/rules/common/` (or `language_specific/` if it only applies to one language).
-2. Register it in `airev_core/rules/registry.py`.
-3. Add test fixtures in `tests/fixtures/<language>/<rule_name>/`:
-   - At least 2 true-positive files (code that SHOULD trigger)
-   - At least 2 true-negative files (code that should NOT trigger)
-   - 1 edge case file
-4. Write tests in `tests/test_rules/test_<rule_name>.py`:
-   - 1 snapshot test covering all fixtures
-   - 1 integration test (source file → CLI → verify output)
+1. Create the rule in `airev_core/rules/common/` (or `language_specific/` if language-specific).
+2. Implement the `NodeRule` or `FileRule` protocol from `airev_core/rules/base.py`.
+3. Register it in `interfaces/cli/commands/scan.py` in `_build_registry()`.
+4. Add tests in `tests/test_rules/test_<rule_name>.py`:
+   - At least 2 true-positive cases (code that SHOULD trigger)
+   - At least 2 true-negative cases (code that should NOT trigger)
+   - 1 edge case
+   - 1 snapshot test covering all cases
 5. Update `CHANGELOG.md` under `[Unreleased] > Added`.
+
+### Rule requirements
+
+- Rules **must be pure functions**: `(arena, index, context) → list[Finding]`
+- No side effects, no global state, no I/O
+- Use `@dataclass(slots=True, frozen=True)` for all data structures
+- Use dictionary jump tables for dispatch — never `match/case` or `isinstance` chains
+- `airev_core/` must never import from `interfaces/`
 
 ## Commit Conventions
 
@@ -80,11 +90,38 @@ When rule behavior changes intentionally:
 
 Never run `--snapshot-update` without reviewing each change.
 
+## Testing the GitHub Action Locally
+
+```bash
+# Validate action metadata
+python -c "import yaml; yaml.safe_load(open('interfaces/github_action/action.yml'))"
+
+# Run action tests
+pytest tests/test_github_action/ -v
+```
+
+## Testing Packaging
+
+```bash
+# Build sdist + wheel
+python -m build
+
+# Smoke test the built package
+python -m venv /tmp/airev-test
+/tmp/airev-test/bin/pip install dist/*.whl
+/tmp/airev-test/bin/airev --version
+/tmp/airev-test/bin/airev scan . --format json
+
+# Validate install script syntax
+bash -n build/install.sh
+```
+
 ## Architecture
 
-Read `.claude/architecture.md` for the full architecture guide. Key principles:
+Key principles (see `.claude/architecture.md` for full details):
 
 - **Structure of Arrays (SoA)** — UAST nodes in numpy arrays, not Python objects
 - **Dictionary jump tables** — O(1) dispatch, no match/case
 - **Pure functions** — rules are `(arena, index, context) → findings`
 - **Core/interface decoupling** — `airev_core/` never does I/O
+- **Frozen slotted dataclasses** — `@dataclass(slots=True, frozen=True)` for all non-arena data
