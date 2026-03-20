@@ -29,23 +29,41 @@ def _load_action_yml() -> dict[str, Any]:
         # Minimal key-value extraction for CI without pyyaml
         text = _ACTION_YML.read_text(encoding="utf-8")
         result: dict[str, Any] = {}
-        if "name:" in text:
-            result["name"] = text.split("name:")[1].split("\n")[0].strip().strip('"')
-        if "inputs:" in text:
-            result["inputs"] = {}
-            in_inputs = False
-            for line in text.splitlines():
-                if line.strip() == "inputs:":
-                    in_inputs = True
+        lines = text.splitlines()
+
+        # Extract top-level scalar fields (name, description)
+        for line in lines:
+            if line.startswith("name:"):
+                result["name"] = line.split(":", 1)[1].strip().strip('"')
+            elif line.startswith("description:"):
+                result["description"] = line.split(":", 1)[1].strip().strip('"')
+
+        # Extract top-level mapping sections
+        def _extract_section_keys(section: str) -> dict[str, Any]:
+            mapping: dict[str, Any] = {}
+            in_section = False
+            for ln in lines:
+                if ln.strip() == f"{section}:":
+                    in_section = True
                     continue
-                if in_inputs and line and not line[0].isspace():
+                if in_section and ln and not ln[0].isspace():
                     break
-                if in_inputs and line.strip() and not line.strip().startswith("#"):
-                    key = line.strip().rstrip(":")
+                if in_section and ln.strip() and not ln.strip().startswith("#"):
+                    key = ln.strip().rstrip(":")
                     if not key.startswith(("description", "required", "default")):
-                        result["inputs"][key] = {}
+                        mapping[key] = {}
+            return mapping
+
+        if "inputs:" in text:
+            result["inputs"] = _extract_section_keys("inputs")
         if "outputs:" in text:
-            result["outputs"] = {}
+            result["outputs"] = _extract_section_keys("outputs")
+        if "runs:" in text:
+            result["runs"] = {"using": ""}
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith("using:"):
+                    result["runs"]["using"] = stripped.split(":", 1)[1].strip().strip('"')
         return result
 
 

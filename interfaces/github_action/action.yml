@@ -1,8 +1,5 @@
 name: "airev — Code Quality Scanner"
-description: >-
-  Detect semantic defects, phantom imports, hardcoded secrets,
-  deprecated patterns, and other high-signal issues in AI-written
-  and human-written code.
+description: "Detect semantic defects, phantom imports, hardcoded secrets, deprecated patterns, and other high-signal issues in AI-written and human-written code."
 author: "airev-tools"
 
 branding:
