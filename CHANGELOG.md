@@ -5,9 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.2.0] — 2026-03-20
 
 ### Added
+- GitHub Action with safe Python entrypoint, SARIF output, and deterministic execution
+- Release CI workflow for PyPI (trusted publishing), Docker (GHCR), and native binaries
+- Install script with SHA-256 checksum verification and platform detection
 - Inline suppression via `# airev: ignore[rule-id]` and `// airev: ignore[rule-id]` comments
 - `.airevignore` file for gitignore-style path exclusion (glob, negation, directory-only patterns)
 - Rule configuration via `.airev.toml` and `[tool.airev]` in `pyproject.toml`
