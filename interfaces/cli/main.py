@@ -1,6 +1,13 @@
 """CLI entry point for airev."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import click
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 from interfaces.cli.commands.scan import scan
 
@@ -25,9 +32,22 @@ class NoGlobGroup(click.Group):
     which breaks ``--exclude "tests/**"`` style options.
     """
 
-    def main(self, *args: object, **kwargs: object) -> object:
-        kwargs.setdefault("windows_expand_args", False)
-        return super().main(*args, **kwargs)
+    def main(
+        self,
+        args: Sequence[str] | None = None,
+        prog_name: str | None = None,
+        complete_var: str | None = None,
+        standalone_mode: bool = True,
+        **extra: Any,
+    ) -> Any:
+        extra.setdefault("windows_expand_args", False)
+        return super().main(
+            args,
+            prog_name=prog_name,
+            complete_var=complete_var,
+            standalone_mode=standalone_mode,
+            **extra,
+        )
 
 
 @click.group(cls=NoGlobGroup, epilog=EPILOG)
@@ -59,28 +79,47 @@ def rules() -> None:
     table.add_column("Type")
     table.add_column("Description")
 
-    rule_info = [
-        (PhantomImportRule(), "node", "Detects imports of packages/modules that don't exist"),
-        (HallucinatedApiRule(), "node", "Detects calls to non-existent methods on real packages"),
-        (DeprecatedApiRule(), "node", "Detects usage of deprecated/outdated APIs"),
-        (HardcodedSecretsRule(), "file", "Detects API keys, tokens, and passwords in source code"),
+    rule_info: list[tuple[str, str, str, str]] = [
         (
-            ReinventedInternalRule(),
+            PhantomImportRule().id,
+            PhantomImportRule().severity.value,
+            "node",
+            "Detects imports of packages/modules that don't exist",
+        ),
+        (
+            HallucinatedApiRule().id,
+            HallucinatedApiRule().severity.value,
+            "node",
+            "Detects calls to non-existent methods on real packages",
+        ),
+        (
+            DeprecatedApiRule().id,
+            DeprecatedApiRule().severity.value,
+            "node",
+            "Detects usage of deprecated/outdated APIs",
+        ),
+        (
+            HardcodedSecretsRule().id,
+            HardcodedSecretsRule().severity.value,
+            "file",
+            "Detects API keys, tokens, and passwords in source code",
+        ),
+        (
+            ReinventedInternalRule().id,
+            ReinventedInternalRule().severity.value,
             "file",
             "Detects AI-duplicated utility functions that already exist in the project",
         ),
     ]
 
-    for rule, rule_type, description in rule_info:
-        table.add_row(rule.id, rule.severity.value, rule_type, description)
+    for rule_id, severity, rule_type, description in rule_info:
+        table.add_row(rule_id, severity, rule_type, description)
 
     console.print(table)
 
 
 @click.command()
-@click.option(
-    "--force", is_flag=True, default=False, help="Overwrite existing .airev.toml"
-)
+@click.option("--force", is_flag=True, default=False, help="Overwrite existing .airev.toml")
 def init(force: bool) -> None:
     """Create a .airev.toml configuration file in the current directory."""
     from pathlib import Path
@@ -91,9 +130,7 @@ def init(force: bool) -> None:
     config_path = Path.cwd() / ".airev.toml"
 
     if config_path.exists() and not force:
-        console.print(
-            f"[yellow]{config_path} already exists.[/yellow] Use --force to overwrite."
-        )
+        console.print(f"[yellow]{config_path} already exists.[/yellow] Use --force to overwrite.")
         return
 
     config_path.write_text(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import importlib
+import importlib.machinery
 import importlib.util
 from typing import TYPE_CHECKING
 
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
     from airev_core.semantics.context import LintContext
 
 
-def _has_native_extensions(spec: importlib.util.ModuleSpec) -> bool:
+def _has_native_extensions(spec: importlib.machinery.ModuleSpec) -> bool:
     """Check if a module's package directory contains C extensions (.pyd/.so)."""
     if spec.submodule_search_locations is None:
         return False

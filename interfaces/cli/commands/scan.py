@@ -176,7 +176,7 @@ def _format_sarif(findings: list[Finding]) -> None:
 @click.option(
     "--lang",
     default=None,
-    help='Only scan files of this language (python, javascript, typescript).',
+    help="Only scan files of this language (python, javascript, typescript).",
 )
 @click.option(
     "--format",
@@ -189,7 +189,7 @@ def _format_sarif(findings: list[Finding]) -> None:
     "--rule",
     "rule_filter",
     default=None,
-    help='Run only this rule (e.g. phantom-import, hallucinated-api). See "airev rules" for the full list.',
+    help='Run only this rule (e.g. phantom-import). See "airev rules" for the full list.',
 )
 @click.option(
     "--exclude",
