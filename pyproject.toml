@@ -52,6 +52,9 @@ Repository = "https://github.com/airev-tools/airev"
 Issues = "https://github.com/airev-tools/airev/issues"
 Changelog = "https://github.com/airev-tools/airev/blob/main/CHANGELOG.md"
 
+[tool.hatch.build.targets.wheel]
+packages = ["airev_core", "interfaces"]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100
