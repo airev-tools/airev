@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "airev"
+name = "airev-scanner"
 version = "0.2.0"
 description = "AI Code Quality Scanner — catches what copilots miss."
 readme = "README.md"

@@ -106,7 +106,7 @@ pytest tests/test_github_action/ -v
 # Build sdist + wheel
 python -m build
 
-# Smoke test the built package
+# Smoke test the built package (PyPI name: airev-scanner, CLI: airev)
 python -m venv /tmp/airev-test
 /tmp/airev-test/bin/pip install dist/*.whl
 /tmp/airev-test/bin/airev --version
