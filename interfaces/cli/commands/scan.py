@@ -176,28 +176,44 @@ def _format_sarif(findings: list[Finding]) -> None:
 @click.option(
     "--lang",
     default=None,
-    help="Only scan files of this language (python, javascript, typescript)",
+    help="Only scan files of this language (python, javascript, typescript).",
 )
 @click.option(
     "--format",
     "output_format",
     default="terminal",
     type=click.Choice(["terminal", "json", "sarif"]),
-    help="Output format (default: terminal)",
+    help="Output format.  [default: terminal]",
 )
 @click.option(
     "--rule",
     "rule_filter",
     default=None,
-    help="Run only this rule (e.g., phantom-import, hallucinated-api)",
+    help='Run only this rule (e.g. phantom-import). See "airev rules" for the full list.',
+)
+@click.option(
+    "--exclude",
+    "excludes",
+    multiple=True,
+    help='Glob pattern to exclude (e.g. "tests/**"). Can be passed multiple times.',
 )
 def scan(
     path: str,
     lang: str | None,
     output_format: str,
     rule_filter: str | None,
+    excludes: tuple[str, ...],
 ) -> None:
-    """Scan a directory for AI-generated code quality issues."""
+    """Scan a directory for AI-generated code quality issues.
+
+    \b
+    Examples:
+      airev scan .                          Scan current directory
+      airev scan src/ --lang python         Only Python files
+      airev scan . --exclude "tests/**"     Exclude paths
+      airev scan . --format sarif           SARIF output for CI
+      airev scan . --rule phantom-import    Single rule
+    """
     console = Console()
     root = Path(path).resolve()
     config = load_config(str(root))
@@ -216,6 +232,12 @@ def scan(
 
         config_patterns = parse_ignorefile("\n".join(config.exclude))
         ignore_patterns = ignore_patterns + config_patterns
+    # Merge --exclude CLI patterns
+    if excludes:
+        from airev_core.discovery.ignore import parse_ignorefile
+
+        cli_patterns = parse_ignorefile("\n".join(excludes))
+        ignore_patterns = ignore_patterns + cli_patterns
     # Apply config language filter
     effective_lang = lang or (
         next(iter(config.languages)) if config.languages and len(config.languages) == 1 else lang

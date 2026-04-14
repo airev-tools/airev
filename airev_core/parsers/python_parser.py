@@ -64,11 +64,23 @@ def _extract_name(node: Node, uast_type: int) -> str | None:
         if name_node is not None:
             return _node_text(name_node)
     elif uast_type == TYPE_IMPORT:
+        # For `import numpy as np`, the "name" field is an aliased_import node
+        # whose text is "numpy as np".  We need just the module name.
         name_node = node.child_by_field_name("name")
         if name_node is not None:
-            return _node_text(name_node)
+            if name_node.type == "aliased_import":
+                # Extract the dotted_name child (the actual module name)
+                for child in name_node.children:
+                    if child.type in ("dotted_name", "identifier"):
+                        return _node_text(child)
+            else:
+                return _node_text(name_node)
         for child in node.children:
-            if child.type in ("dotted_name", "identifier"):
+            if child.type == "aliased_import":
+                for sub in child.children:
+                    if sub.type in ("dotted_name", "identifier"):
+                        return _node_text(sub)
+            elif child.type in ("dotted_name", "identifier"):
                 return _node_text(child)
     elif uast_type == TYPE_IMPORT_FROM:
         module_node = node.child_by_field_name("module_name")
