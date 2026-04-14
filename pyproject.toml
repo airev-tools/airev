@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "airev"
+name = "airev-scanner"
 version = "0.2.0"
 description = "AI Code Quality Scanner — catches what copilots miss."
 readme = "README.md"
@@ -51,6 +51,9 @@ Homepage = "https://github.com/airev-tools/airev"
 Repository = "https://github.com/airev-tools/airev"
 Issues = "https://github.com/airev-tools/airev/issues"
 Changelog = "https://github.com/airev-tools/airev/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["airev_core", "interfaces"]
 
 [tool.ruff]
 target-version = "py312"

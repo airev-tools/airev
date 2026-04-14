@@ -8,7 +8,7 @@
 #   AIREV_VERSION=v0.2.0 bash install.sh
 #
 # If your platform has no native binary, use pip instead:
-#   pip install airev
+#   pip install airev-scanner
 
 set -euo pipefail
 
@@ -29,7 +29,7 @@ detect_platform() {
             echo "Error: Unsupported OS '$os'."
             echo ""
             echo "Install via pip instead:"
-            echo "  pip install airev"
+            echo "  pip install airev-scanner"
             exit 1
             ;;
     esac
@@ -41,7 +41,7 @@ detect_platform() {
             echo "Error: Unsupported architecture '$arch'."
             echo ""
             echo "Install via pip instead:"
-            echo "  pip install airev"
+            echo "  pip install airev-scanner"
             exit 1
             ;;
     esac
@@ -69,7 +69,7 @@ resolve_version() {
         echo "  AIREV_VERSION=v0.2.0 bash install.sh"
         echo ""
         echo "Or install via pip:"
-        echo "  pip install airev"
+        echo "  pip install airev-scanner"
         exit 1
     fi
 
@@ -95,7 +95,7 @@ download_and_verify() {
         echo "Available platforms: linux-x86_64, darwin-x86_64, darwin-arm64"
         echo ""
         echo "Install via pip instead:"
-        echo "  pip install airev"
+        echo "  pip install airev-scanner"
         exit 1
     fi
 

@@ -25,7 +25,7 @@ def _build_argv(
     lang: str,
 ) -> list[str]:
     """Build a safe argv list for the airev CLI. No shell interpolation."""
-    argv = ["python", "-m", "interfaces.cli.main", "scan", path, "--format", fmt]
+    argv = ["airev", "scan", path, "--format", fmt]
     if config:
         argv.extend(["--config", config])
     if rule:
@@ -60,7 +60,6 @@ def main() -> int:
         argv,
         capture_output=True,
         text=True,
-        cwd="/app",
     )
 
     stdout = result.stdout

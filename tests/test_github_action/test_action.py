@@ -144,7 +144,7 @@ class TestEntrypoint:
             from interfaces.github_action.entrypoint import _build_argv
 
             argv = _build_argv(".", "sarif", "", "", "")
-            assert argv == ["python", "-m", "interfaces.cli.main", "scan", ".", "--format", "sarif"]
+            assert argv == ["airev", "scan", ".", "--format", "sarif"]
         finally:
             sys.path.pop(0)
 
@@ -240,7 +240,8 @@ class TestDockerfile:
             if not stripped:
                 in_continuation = False
                 continue
-            if stripped.startswith("#") and not in_continuation:
+            if stripped.startswith("#"):
+                # Comments inside RUN continuations don't end the continuation
                 continue
             if in_continuation:
                 in_continuation = stripped.endswith("\\")

@@ -40,7 +40,7 @@ Languages: **Python**, **JavaScript**, **TypeScript**
 
 ### pip (recommended)
 ```bash
-pip install airev
+pip install airev-scanner
 ```
 
 ### Docker
@@ -54,7 +54,7 @@ docker run --rm -v "$(pwd):/repo" ghcr.io/airev-tools/airev /repo
 curl -fsSL https://raw.githubusercontent.com/airev-tools/airev/main/build/install.sh | bash
 ```
 
-Binaries are available for Linux x86_64, macOS x86_64, and macOS ARM64. If your platform is unsupported, use `pip install airev`.
+Binaries are available for Linux x86_64, macOS x86_64, and macOS ARM64. If your platform is unsupported, use `pip install airev-scanner`.
 
 ---
 
