@@ -20,11 +20,33 @@ if TYPE_CHECKING:
     from airev_core.semantics.context import LintContext
 
 
+def _has_native_extensions(spec: importlib.util.ModuleSpec) -> bool:
+    """Check if a module's package directory contains C extensions (.pyd/.so)."""
+    if spec.submodule_search_locations is None:
+        return False
+    from pathlib import Path
+
+    for loc in spec.submodule_search_locations:
+        pkg_dir = Path(loc)
+        if not pkg_dir.is_dir():
+            continue
+        for child in pkg_dir.iterdir():
+            if child.suffix in (".pyd", ".so"):
+                return True
+    return False
+
+
+# Threshold below which AST-only inspection is unreliable for packages with
+# native extensions or submodule_search_locations (i.e. real packages).
+_MIN_RELIABLE_EXPORT_COUNT = 20
+
+
 def _get_module_exports_ast(module_name: str) -> frozenset[str] | None:
     """Attempt to read the public names exported by a Python module via AST.
 
-    Returns None if the module is not installed or cannot be inspected.
-    Never executes the module — only reads its AST.
+    Returns None if the module is not installed, cannot be inspected, or the
+    result is likely incomplete (star imports, C extensions, very few names
+    for a package with submodules).  Never executes the module.
     """
     try:
         spec = importlib.util.find_spec(module_name)
@@ -32,6 +54,11 @@ def _get_module_exports_ast(module_name: str) -> frozenset[str] | None:
         return None
 
     if spec is None or spec.origin is None:
+        return None
+
+    # If the package contains native C extensions, AST inspection of __init__.py
+    # will miss most exports — bail out immediately so the runtime fallback runs.
+    if _has_native_extensions(spec):
         return None
 
     # Read and parse the module's source file
@@ -76,6 +103,12 @@ def _get_module_exports_ast(module_name: str) -> frozenset[str] | None:
                             all_names.add(elt.value)
                     if all_names:
                         return frozenset(all_names)
+
+    # If this is a package (has submodules) but we found very few names,
+    # AST inspection likely missed re-exports from submodules — bail out.
+    is_package = spec.submodule_search_locations is not None
+    if is_package and len(names) < _MIN_RELIABLE_EXPORT_COUNT:
+        return None
 
     return frozenset(names) if names else None
 
@@ -158,6 +191,12 @@ class HallucinatedApiRule:
         # Check if receiver maps to an imported module
         imp = ctx.semantic.import_table.get(receiver)
         if imp is None:
+            return []
+
+        # Skip `from X import Y` imports — the receiver is an imported object
+        # (class, dict, function, etc.), not the module itself.  We can't know
+        # the object's type, so checking module-level exports is wrong here.
+        if imp.is_from_import:
             return []
 
         # Skip if the module is not a third-party import (it might be local)
